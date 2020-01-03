@@ -24,8 +24,7 @@ type FileLogger struct {
 func NewFileLogger(config map[string]string) (log LogInterface, err error) {
 	logPath, ok := config["log_path"]
 	if !ok {
-		err = fmt.Errorf("not found log_path ")
-		return
+		logPath = "logs"
 	}
 
 	logName, ok := config["log_name"]
