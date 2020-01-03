@@ -30,14 +30,12 @@ func NewFileLogger(config map[string]string) (log LogInterface, err error) {
 
 	logName, ok := config["log_name"]
 	if !ok {
-		err = fmt.Errorf("not found log_name ")
-		return
+		logName = time.Now().Format("2006-01-02")
 	}
 
 	logLevel, ok := config["log_level"]
 	if !ok {
-		err = fmt.Errorf("not found log_level ")
-		return
+		logLevel = "DEBUG"
 	}
 
 	logChanSize, ok := config["log_chan_size"]
@@ -87,8 +85,30 @@ func NewFileLogger(config map[string]string) (log LogInterface, err error) {
 	return
 }
 
+//调用os.MkdirAll递归创建文件夹
+func createFile(filePath string)  error  {
+	if !isExist(filePath) {
+		err := os.MkdirAll(filePath,os.ModePerm)
+		return err
+	}
+	return nil
+}
+
+// 判断所给路径文件/文件夹是否存在(返回true是存在)
+func isExist(path string) bool {
+	_, err := os.Stat(path)    //os.Stat获取文件信息
+	if err != nil {
+		if os.IsExist(err) {
+			return true
+		}
+		return false
+	}
+	return true
+}
+
 func (f *FileLogger) Init() {
 	filename := fmt.Sprintf("%s/%s.log", f.logPath, f.logName)
+	createFile(f.logPath)
 	file, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
 	if err != nil {
 		panic(fmt.Sprintf("open faile %s failed, err:%v", filename, err))
@@ -214,7 +234,7 @@ func (f *FileLogger) writeLogBackground() {
 		}
 
 		f.checkSplitFile(logData.WarnAndFatal)
-
+		fmt.Println(123)
 		fmt.Fprintf(file, "%s %s (%s:%s:%d) %s\n", logData.TimeStr,
 			logData.LevelStr, logData.Filename, logData.FuncName, logData.LineNo, logData.Message)
 	}

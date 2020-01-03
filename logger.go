@@ -51,3 +51,7 @@ func Init(){
 	log.Init()
 }
 
+func Close(){
+	log.Close()
+}
+
